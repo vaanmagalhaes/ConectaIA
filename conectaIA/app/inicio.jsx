@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   FlatList,
   Image,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -25,6 +26,7 @@ const MOCK_DESTAQUE = [
     title: "ChatGPT",
     category: "Texto",
     tags: ["Grátis", "Premium"],
+    
   },
   {
     id: 2,
@@ -54,9 +56,24 @@ const MOCK_RECENTES = [
   },
 ];
 
+// Todas as categorias para o modal "ver mais"
+const todasCategorias = [
+  "Texto",
+  "Pesquisa",
+  "Imagem",
+  "Programação",
+  "Produtividade",
+  "Análise de Dados",
+  "Documentação",
+  "Pesquisa",
+  "Organização"
+];
+
 export default function Inicio() {
   const [destaque, setDestaque] = useState(MOCK_DESTAQUE);
   const [categorias, setCategorias] = useState(MOCK_CATEGORIAS);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false); // Estado do modal de categorias
   const [recentes, setRecentes] = useState(MOCK_RECENTES);
 
   const [iaPopupVisible, setIaPopupVisible] = useState(false);
@@ -111,7 +128,7 @@ export default function Inicio() {
           </View>
         </View>
         {/* Campo de busca */}
-        <TextInput placeholder="Buscar IA..." style={styles.searchInput} />
+        <TextInput placeholder="Que tipo de IA você está procurando hoje?" style={styles.searchInput} />
         {/* IAs em Destaque */}
         <Text style={styles.sectionTitle}>IAs em Destaque</Text>
         {/* LISTA HORIZONTAL */}
@@ -185,18 +202,17 @@ export default function Inicio() {
             ))}
           </View>
           <View style={styles.verMaisRow}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalCategoriaVisible(true)}>
               <Text style={styles.verMais}>Ver mais</Text>
             </TouchableOpacity>
           </View>
         </View>
-
         {/* RECENTES */}
         <View style={styles.recentesContainer}>
           <Text style={styles.sectionTitle}>Adicionadas Recentemente</Text>
           <View style={styles.recenteCard}>
             <Image
-              source={require("../assets/images/logoClaude3.png")} // Ajuste para seu logo!
+              source={require("../assets/images/logoClaude3.png")}
               style={styles.recenteLogo}
               resizeMode="contain"
             />
@@ -225,6 +241,31 @@ export default function Inicio() {
         loading={iaPopupLoading}
         onClose={() => setIaPopupVisible(false)}
       />
+
+      {/* MODAL DE CATEGORIAS */}
+      <Modal
+        visible={modalCategoriaVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalCategoriaVisible(false)}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modalBox}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalCategoriaVisible(false)}>
+              <Text style={{ fontSize: 18 }}>✕</Text>
+            </TouchableOpacity>
+            {todasCategorias.map(cat => (
+              <TouchableOpacity
+                key={cat}
+                style={styles.modalButton}
+                onPress={() => setModalCategoriaVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>{cat}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
 
       {/* MENU INFERIOR FIXO */}
       <View style={styles.menuBar}>
@@ -308,7 +349,7 @@ const styles = {
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 22,
     borderWidth: 1,
     borderColor: "#ebebeb",
@@ -374,7 +415,7 @@ const styles = {
     gap: "14px",
   },
   iaCard: {
-    width: 200, // largura fixa para cada card
+    width: 200,
     backgroundColor: "#fff",
     borderRadius: 13,
     borderWidth: 1,
@@ -465,12 +506,9 @@ const styles = {
     color: "#29B6F6",
     fontWeight: "bold",
   },
-
-  /** RECENTES  */
   recentesContainer: {
     marginBottom: 24,
   },
-
   recenteCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -485,53 +523,79 @@ const styles = {
     shadowRadius: 4,
     elevation: 1,
   },
-
   recenteLogo: {
     width: 46,
     height: 46,
     marginRight: 14,
   },
-
   recenteInfo: {
     flex: 1,
     justifyContent: "center",
   },
-
   recenteTitle: {
     fontSize: 17,
     fontWeight: "bold",
     color: "#222",
   },
-
   recenteSubtitle: {
     fontSize: 13,
     color: "#666",
     marginBottom: 6,
   },
-
   recenteTagsRow: {
     flexDirection: "row",
     marginTop: 2,
   },
-
   recenteTag: {
     paddingHorizontal: 10,
     paddingVertical: 2,
     borderRadius: 11,
     marginRight: 6,
   },
-
   recenteTagTexto: {
     backgroundColor: "#1a237e",
   },
-
   recenteTagFreemium: {
     backgroundColor: "#40bff5",
   },
-
   recenteTagText: {
     color: "#fff",
     fontSize: 13,
     fontWeight: "500",
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.12)",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  modalBox: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    width: 250,
+    padding: 18,
+    alignItems: "stretch",
+    position: "relative"
+  },
+  closeButton: {
+    position: "absolute",
+    right: 11,
+    top: 7,
+    zIndex: 2,
+    padding: 5,
+  },
+  modalButton: {
+    backgroundColor: "#F7F7F7",
+    paddingVertical: 13,
+    marginVertical: 7,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e3e3e3"
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#222"
+  }
 };

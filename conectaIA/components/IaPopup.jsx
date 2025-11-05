@@ -58,7 +58,16 @@ export default function IaPopup({ visible, iaInfo, loading, onClose }) {
                 <TouchableOpacity style={popupStyles.voltarBtn} onPress={onClose}>
                   <Text style={popupStyles.voltarText}>Voltar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={popupStyles.acessarBtn}>
+                <TouchableOpacity
+                  style={popupStyles.acessarBtn}
+                  onPress={() => {
+                    if (iaInfo && iaInfo.url) {
+                      import("react-native").then(({ Linking }) => {
+                        Linking.openURL(iaInfo.url);
+                      });
+                    }
+                  }}
+                >
                   <Text style={popupStyles.acessarText}>Acessar IA</Text>
                 </TouchableOpacity>
               </View>
