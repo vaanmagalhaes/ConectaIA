@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -20,8 +20,8 @@ const MOCK_IAS_DESCOBRIR = [
     logo: require("../assets/images/logoChatGPT.png"),
     title: "ChatGPT",
     subtitle: "IA conversacional para textos, códigos e ideias",
-    category: "Texto",
-    preco: "Freemium",
+    category: ["Texto", "Código", "Documentação"], // 🆕 Array de categorias
+    preco: ["Freemium"],
     tags: ["Conversacional"],
     url: "https://chatgpt.com/",
   },
@@ -29,8 +29,9 @@ const MOCK_IAS_DESCOBRIR = [
     id: 2,
     logo: require("../assets/images/logoClaude3.png"),
     title: "Claude 3",
-    subtitle: "IA focada em gerar, resumir e compreender textos com segurança e ética",
-    category: "Texto",
+    subtitle:
+      "IA focada em gerar, resumir e compreender textos com segurança e ética",
+    category: ["Documentação", "Código"], // 🆕 Múltiplas categorias
     preco: "Freemium",
     tags: ["Conversacional"],
     url: "https://claude.ai",
@@ -40,7 +41,7 @@ const MOCK_IAS_DESCOBRIR = [
     logo: require("../assets/images/logoGitHubCopilot.png"),
     title: "GitHub Copilot",
     subtitle: "Assistente de código inteligente",
-    category: "Código",
+    category: ["Código"], // 🆕 Uma categoria (ainda em array)
     preco: "Premium",
     tags: ["Programação"],
     url: "https://github.com/copilot",
@@ -50,14 +51,17 @@ const MOCK_IAS_DESCOBRIR = [
 // Categorias para os chips
 const CATEGORIAS_CHIPS = [
   "Todos",
-  "Texto",
+  "Documentação",
   "Imagem",
   "Código",
   "Vídeo",
-  "Áudio",
+  "Texto",
 ];
 
 export default function Descobrir() {
+  // 🆕 Recebe parâmetros da navegação
+  const params = useLocalSearchParams();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [iasFiltradas, setIasFiltradas] = useState(MOCK_IAS_DESCOBRIR);
@@ -67,19 +71,24 @@ export default function Descobrir() {
   const [iaSelecionada, setIaSelecionada] = useState(null);
   const [iaPopupLoading, setIaPopupLoading] = useState(false);
 
-  // 🆕 Estados do modal de filtros
+  // Estados do modal de filtros
   const [modalFiltrosVisible, setModalFiltrosVisible] = useState(false);
   const [filtrosCategorias, setFiltrosCategorias] = useState([]);
   const [filtrosPrecos, setFiltrosPrecos] = useState([]);
 
-  // 🆕 Função para alternar seleção de categoria no filtro
-  const toggleFiltroCategoria = (categoria) => {
-    if (filtrosCategorias.includes(categoria)) {
-      setFiltrosCategorias(filtrosCategorias.filter((c) => c !== categoria));
-    } else {
-      setFiltrosCategorias([...filtrosCategorias, categoria]);
+  // 🆕 useEffect para aplicar categoria quando vier dos parâmetros
+  useEffect(() => {
+    if (params.category) {
+      const categoria = params.category;
+      setSelectedCategory(categoria);
+
+      // Filtra as IAs pela categoria
+      const filtered = MOCK_IAS_DESCOBRIR.filter((ia) =>
+        ia.category.includes(categoria)
+      );
+      setIasFiltradas(filtered);
     }
-  };
+  }, [params.category]);
 
   // 🆕 Função para alternar seleção de preço no filtro
   const toggleFiltroPreco = (preco) => {
@@ -91,13 +100,15 @@ export default function Descobrir() {
   };
 
   // 🆕 Aplicar filtros
+  // 🆕 Aplicar filtros - atualizado para arrays de categorias
   const aplicarFiltros = () => {
     let filtered = MOCK_IAS_DESCOBRIR;
 
     // Filtro por categorias selecionadas
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
-        filtrosCategorias.includes(ia.category)
+        // Verifica se alguma categoria da IA está nos filtros selecionados
+        ia.category.some((cat) => filtrosCategorias.includes(cat))
       );
     }
 
@@ -128,6 +139,7 @@ export default function Descobrir() {
   };
 
   // Função para filtrar IAs (atualizada para considerar filtros do modal)
+  // Função para filtrar IAs (atualizada para considerar filtros do modal)
   const handleSearch = (text) => {
     setSearchQuery(text);
     let filtered = MOCK_IAS_DESCOBRIR;
@@ -135,7 +147,7 @@ export default function Descobrir() {
     // Aplicar filtros do modal
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
-        filtrosCategorias.includes(ia.category)
+        ia.category.some((cat) => filtrosCategorias.includes(cat))
       );
     }
     if (filtrosPrecos.length > 0) {
@@ -144,7 +156,9 @@ export default function Descobrir() {
 
     // Filtro por categoria dos chips
     if (selectedCategory !== "Todos") {
-      filtered = filtered.filter((ia) => ia.category === selectedCategory);
+      filtered = filtered.filter((ia) =>
+        ia.category.includes(selectedCategory)
+      );
     }
 
     // Filtro por busca
@@ -166,7 +180,7 @@ export default function Descobrir() {
     // Aplicar filtros do modal
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
-        filtrosCategorias.includes(ia.category)
+        ia.category.some((cat) => filtrosCategorias.includes(cat))
       );
     }
     if (filtrosPrecos.length > 0) {
@@ -175,7 +189,7 @@ export default function Descobrir() {
 
     // Filtro por categoria
     if (category !== "Todos") {
-      filtered = filtered.filter((ia) => ia.category === category);
+      filtered = filtered.filter((ia) => ia.category.includes(category));
     }
 
     // Filtro por busca
@@ -209,9 +223,9 @@ export default function Descobrir() {
           : "O GitHub Copilot é um assistente de codificação feito para sugerir, explicar e gerar trechos completos de código para desenvolvedores.",
       principaisUsos:
         ia.title === "ChatGPT"
-          ? ["Texto", "Programação", "Pesquisa", "Análise de Dados"]
+          ? ["Texto", "Código", "Pesquisa", "Análise de Dados"]
           : ia.title === "Claude 3"
-          ? ["Texto", "Pesquisa", "Programação"]
+          ? ["Texto", "Pesquisa", "Código"]
           : ["Código", "Documentação", "Programação"],
       precos:
         ia.title === "ChatGPT"
@@ -346,7 +360,7 @@ export default function Descobrir() {
             {/* Filtro por Categoria */}
             <Text style={styles.filterSectionTitle}>Por Categoria</Text>
             <View style={styles.filterOptionsRow}>
-              {["Texto", "Imagem", "Código", "Áudio"].map((cat) => (
+              {["Texto", "Imagem", "Código", "Documentação"].map((cat) => (
                 <TouchableOpacity
                   key={cat}
                   style={[

@@ -6,7 +6,6 @@ import {
   Modal,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -52,24 +51,19 @@ const MOCK_RECENTES = [
       "Claude é uma IA desenvolvida pela Anthropic. Focada em gerar, resumir e compreender textos com segurança e ética. Ideal para quem busca soluções conversacionais avançadas e confiáveis para tarefas profissionais e conteúdo digital.",
     principaisUsos: ["Texto", "Pesquisa", "Programação"],
     precos: "Gratuito com limitações / R$90 por mês para uso ilimitado.",
-    url: "https://claude.ai", 
+    url: "https://claude.ai",
   },
 ];
 
 // Todas as categorias para o modal "ver mais"
-const todasCategorias = [
-  "Texto",
-  "Imagem",
-  "Programação",
-  "Código"
-];
+const todasCategorias = ["Texto", "Imagem", "Documentação", "Código"];
 
 const menuOptions = [
-  { label: "Início",    icon: "🏠", link: "/inicio" },
+  { label: "Início", icon: "🏠", link: "/inicio" },
   { label: "Descobrir", icon: "🔍", link: "/descobrir" },
   { label: "Favoritos", icon: "🤍", link: "/favoritos" },
   { label: "Tutoriais", icon: "📖", link: "/tutoriais" },
-  { label: "Perfil",    icon: "👤", link: "/perfil" },
+  { label: "Perfil", icon: "👤", link: "/perfil" },
 ];
 
 export default function Inicio() {
@@ -126,10 +120,14 @@ export default function Inicio() {
           </View>
         </View>
         {/* Campo de busca */}
-        <TextInput
-          placeholder="Que tipo de IA você está procurando hoje?"
-          style={styles.searchInput}
-        />
+        <TouchableOpacity
+          onPress={() => router.push("/descobrir")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.searchInput} pointerEvents="none">
+            <Text style={styles.searchPlaceholder}>🔍 Buscar por IAS...</Text>
+          </View>
+        </TouchableOpacity>
         {/* IAs em Destaque */}
         <Text style={styles.sectionTitle}>IAs em Destaque</Text>
         {/* LISTA HORIZONTAL */}
@@ -162,10 +160,8 @@ export default function Inicio() {
                       : "Gratuito com limitações para estudantes / R$56 por mês para uso ilimitado do ChatGPT.",
                   url:
                     item.title === "ChatGPT"
-                    ? "https://chatgpt.com/"
-                    : "https://github.com/copilot",
-
-
+                      ? "https://chatgpt.com/"
+                      : "https://github.com/copilot",
                 });
                 setIaPopupLoading(false);
                 setIaPopupVisible(true);
@@ -195,17 +191,27 @@ export default function Inicio() {
             </TouchableOpacity>
           )}
         />
+
         {/* Categorias */}
         <Text style={styles.sectionTitle}>Categorias</Text>
         <View style={styles.categoriasSection}>
           <View style={styles.categoriasRow}>
             {categorias.slice(0, 2).map((item) => (
-              <View key={item.id} style={styles.categoriaCard}>
+              <TouchableOpacity
+                key={item.id}
+                style={styles.categoriaCard}
+                onPress={() => {
+                  router.push({
+                    pathname: "/descobrir",
+                    params: { category: item.title }, // 🆕 Passa a categoria
+                  });
+                }}
+              >
                 <Text style={styles.categoriaTitle}>{item.title}</Text>
                 <Text style={styles.categoriaCount}>
                   {item.count} IA{item.count > 1 ? "s" : ""}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
           <View style={styles.verMaisRow}>
@@ -230,7 +236,7 @@ export default function Inicio() {
                 descricao: recentes[0].descricao,
                 principaisUsos: recentes[0].principaisUsos,
                 precos: recentes[0].precos,
-                url:recentes[0].url, 
+                url: recentes[0].url,
               });
               setIaPopupLoading(false);
               setIaPopupVisible(true);
@@ -286,7 +292,13 @@ export default function Inicio() {
               <TouchableOpacity
                 key={cat}
                 style={styles.modalButton}
-                onPress={() => setModalCategoriaVisible(false)}
+                onPress={() => {
+                  setModalCategoriaVisible(false);
+                  router.push({
+                    pathname: "/descobrir",
+                    params: { category: cat }, // 🆕 Passa a categoria
+                  });
+                }}
               >
                 <Text style={styles.modalButtonText}>{cat}</Text>
               </TouchableOpacity>
@@ -302,7 +314,7 @@ export default function Inicio() {
             key={item.label}
             style={styles.menuItem}
             onPress={() => {
-              setMenuIndex(idx)
+              setMenuIndex(idx);
               router.push(item.link);
             }}
             activeOpacity={0.7}
@@ -324,8 +336,6 @@ export default function Inicio() {
               {item.label}
             </Text>
           </TouchableOpacity>
-
-          
         ))}
       </View>
     </View>
@@ -630,5 +640,20 @@ const styles = {
     fontSize: 16,
     fontWeight: "bold",
     color: "#222",
+  },
+  searchInput: {
+    backgroundColor: "#f3f6fa",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 14,
+    marginBottom: 22,
+    borderWidth: 1,
+    borderColor: "#ebebeb",
+    justifyContent: "center",
+  },
+  searchPlaceholder: {
+    fontSize: 14,
+    color: "#999",
   },
 };
