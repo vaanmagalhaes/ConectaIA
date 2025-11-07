@@ -20,8 +20,8 @@ const MOCK_IAS_DESCOBRIR = [
     logo: require("../assets/images/logoChatGPT.png"),
     title: "ChatGPT",
     subtitle: "IA conversacional para textos, códigos e ideias",
-    category: ["Texto", "Código", "Documentação"], // 🆕 Array de categorias
-    preco: ["Freemium"],
+    category: ["Texto", "Código", "Pesquisa"],
+    preco: "Freemium",
     tags: ["Conversacional"],
     url: "https://chatgpt.com/",
   },
@@ -29,9 +29,8 @@ const MOCK_IAS_DESCOBRIR = [
     id: 2,
     logo: require("../assets/images/logoClaude3.png"),
     title: "Claude 3",
-    subtitle:
-      "IA focada em gerar, resumir e compreender textos com segurança e ética",
-    category: ["Documentação", "Código"], // 🆕 Múltiplas categorias
+    subtitle: "IA focada em gerar, resumir e compreender textos com segurança e ética",
+    category: ["Texto", "Código"],
     preco: "Freemium",
     tags: ["Conversacional"],
     url: "https://claude.ai",
@@ -41,7 +40,7 @@ const MOCK_IAS_DESCOBRIR = [
     logo: require("../assets/images/logoGitHubCopilot.png"),
     title: "GitHub Copilot",
     subtitle: "Assistente de código inteligente",
-    category: ["Código"], // 🆕 Uma categoria (ainda em array)
+    category: ["Código"],
     preco: "Premium",
     tags: ["Programação"],
     url: "https://github.com/copilot",
@@ -51,73 +50,59 @@ const MOCK_IAS_DESCOBRIR = [
 // Categorias para os chips
 const CATEGORIAS_CHIPS = [
   "Todos",
-  "Documentação",
+  "Texto",
   "Imagem",
   "Código",
   "Vídeo",
-  "Texto",
+  "Áudio",
 ];
 
 export default function Descobrir() {
-  // 🆕 Recebe parâmetros da navegação
   const params = useLocalSearchParams();
-
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [iasFiltradas, setIasFiltradas] = useState(MOCK_IAS_DESCOBRIR);
 
-  // Estados do popup
+  // Estados do modal de filtro
+  const [modalFiltrosVisible, setModalFiltrosVisible] = useState(false);
+  const [filtrosCategorias, setFiltrosCategorias] = useState([]);
+  const [filtrosPrecos, setFiltrosPrecos] = useState([]);
+  
+  // Estados do popup de IA
   const [iaPopupVisible, setIaPopupVisible] = useState(false);
   const [iaSelecionada, setIaSelecionada] = useState(null);
   const [iaPopupLoading, setIaPopupLoading] = useState(false);
 
-  // Estados do modal de filtros
-  const [modalFiltrosVisible, setModalFiltrosVisible] = useState(false);
-  const [filtrosCategorias, setFiltrosCategorias] = useState([]);
-  const [filtrosPrecos, setFiltrosPrecos] = useState([]);
-
-  // 🆕 useEffect para aplicar categoria quando vier dos parâmetros
-  useEffect(() => {
-    if (params.category) {
-      const categoria = params.category;
-      setSelectedCategory(categoria);
-
-      // Filtra as IAs pela categoria
-      const filtered = MOCK_IAS_DESCOBRIR.filter((ia) =>
-        ia.category.includes(categoria)
-      );
-      setIasFiltradas(filtered);
+  // Função para alternar seleção de categoria
+  function toggleFiltroCategoria(categoria) {
+    if (filtrosCategorias.includes(categoria)) {
+      setFiltrosCategorias(filtrosCategorias.filter((c) => c !== categoria));
+    } else {
+      setFiltrosCategorias([...filtrosCategorias, categoria]);
     }
-  }, [params.category]);
+  }
 
-  // 🆕 Função para alternar seleção de preço no filtro
-  const toggleFiltroPreco = (preco) => {
+  // Função para alternar seleção de preço
+  function toggleFiltroPreco(preco) {
     if (filtrosPrecos.includes(preco)) {
       setFiltrosPrecos(filtrosPrecos.filter((p) => p !== preco));
     } else {
       setFiltrosPrecos([...filtrosPrecos, preco]);
     }
-  };
+  }
 
-  // 🆕 Aplicar filtros
-  // 🆕 Aplicar filtros - atualizado para arrays de categorias
+  // Aplicar filtros do modal
   const aplicarFiltros = () => {
     let filtered = MOCK_IAS_DESCOBRIR;
-
-    // Filtro por categorias selecionadas
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
-        // Verifica se alguma categoria da IA está nos filtros selecionados
         ia.category.some((cat) => filtrosCategorias.includes(cat))
       );
     }
-
-    // Filtro por preços selecionados
     if (filtrosPrecos.length > 0) {
       filtered = filtered.filter((ia) => filtrosPrecos.includes(ia.preco));
     }
-
-    // Filtro por busca
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter(
         (ia) =>
@@ -125,12 +110,11 @@ export default function Descobrir() {
           ia.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
     setIasFiltradas(filtered);
     setModalFiltrosVisible(false);
   };
 
-  // 🆕 Limpar filtros
+  // Limpar filtros do modal
   const limparFiltros = () => {
     setFiltrosCategorias([]);
     setFiltrosPrecos([]);
@@ -138,13 +122,10 @@ export default function Descobrir() {
     setModalFiltrosVisible(false);
   };
 
-  // Função para filtrar IAs (atualizada para considerar filtros do modal)
-  // Função para filtrar IAs (atualizada para considerar filtros do modal)
+  // Filtrar ao buscar
   const handleSearch = (text) => {
     setSearchQuery(text);
     let filtered = MOCK_IAS_DESCOBRIR;
-
-    // Aplicar filtros do modal
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
         ia.category.some((cat) => filtrosCategorias.includes(cat))
@@ -153,15 +134,11 @@ export default function Descobrir() {
     if (filtrosPrecos.length > 0) {
       filtered = filtered.filter((ia) => filtrosPrecos.includes(ia.preco));
     }
-
-    // Filtro por categoria dos chips
     if (selectedCategory !== "Todos") {
       filtered = filtered.filter((ia) =>
         ia.category.includes(selectedCategory)
       );
     }
-
-    // Filtro por busca
     if (text.trim() !== "") {
       filtered = filtered.filter(
         (ia) =>
@@ -169,15 +146,13 @@ export default function Descobrir() {
           ia.subtitle.toLowerCase().includes(text.toLowerCase())
       );
     }
-
     setIasFiltradas(filtered);
   };
 
+  // Filtrar ao clicar em chip
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
     let filtered = MOCK_IAS_DESCOBRIR;
-
-    // Aplicar filtros do modal
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
         ia.category.some((cat) => filtrosCategorias.includes(cat))
@@ -186,13 +161,9 @@ export default function Descobrir() {
     if (filtrosPrecos.length > 0) {
       filtered = filtered.filter((ia) => filtrosPrecos.includes(ia.preco));
     }
-
-    // Filtro por categoria
     if (category !== "Todos") {
       filtered = filtered.filter((ia) => ia.category.includes(category));
     }
-
-    // Filtro por busca
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter(
         (ia) =>
@@ -200,9 +171,20 @@ export default function Descobrir() {
           ia.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
     setIasFiltradas(filtered);
   };
+
+  // Quando mudar params (navegação por categoria), filtrar a lista
+  useEffect(() => {
+    if (params.category) {
+      const categoria = params.category;
+      setSelectedCategory(categoria);
+      const filtered = MOCK_IAS_DESCOBRIR.filter((ia) =>
+        ia.category.includes(categoria)
+      );
+      setIasFiltradas(filtered);
+    }
+  }, [params.category]);
 
   // Função para abrir detalhes da IA
   const abrirDetalhesIA = (ia) => {
@@ -223,9 +205,9 @@ export default function Descobrir() {
           : "O GitHub Copilot é um assistente de codificação feito para sugerir, explicar e gerar trechos completos de código para desenvolvedores.",
       principaisUsos:
         ia.title === "ChatGPT"
-          ? ["Texto", "Código", "Pesquisa", "Análise de Dados"]
+          ? ["Texto", "Programação", "Pesquisa", "Análise de Dados"]
           : ia.title === "Claude 3"
-          ? ["Texto", "Pesquisa", "Código"]
+          ? ["Texto", "Pesquisa", "Programação"]
           : ["Código", "Documentação", "Programação"],
       precos:
         ia.title === "ChatGPT"
@@ -259,7 +241,6 @@ export default function Descobrir() {
         <Text style={styles.headerTitle}>Descobrir</Text>
         <View style={styles.headerSpacer} />
       </View>
-
       {/* Busca */}
       <View style={styles.searchContainer}>
         <Text style={styles.searchIcon}>🔍</Text>
@@ -269,7 +250,6 @@ export default function Descobrir() {
           onChangeText={handleSearch}
           style={styles.searchInput}
         />
-        {/* 🆕 Botão de filtro que abre o modal */}
         <TouchableOpacity
           style={styles.filterButton}
           onPress={() => setModalFiltrosVisible(true)}
@@ -277,7 +257,6 @@ export default function Descobrir() {
           <Text style={styles.filterIcon}>☰</Text>
         </TouchableOpacity>
       </View>
-
       {/* Chips de Categorias */}
       <ScrollView
         horizontal
@@ -305,7 +284,6 @@ export default function Descobrir() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
       {/* Lista de IAs */}
       <FlatList
         data={iasFiltradas}
@@ -316,14 +294,13 @@ export default function Descobrir() {
             style={styles.iaItem}
             onPress={() => abrirDetalhesIA(item)}
           >
-            <Image
-              source={item.logo}
-              style={styles.iaLogo}
-              resizeMode="contain"
-            />
+            <Image source={item.logo} style={styles.iaLogo} resizeMode="contain" />
             <View style={styles.iaInfo}>
               <Text style={styles.iaTitle}>{item.title}</Text>
               <Text style={styles.iaSubtitle}>{item.subtitle}</Text>
+              <Text style={styles.iaCategorias}>
+                {item.category.join(" • ")}
+              </Text>
             </View>
             <TouchableOpacity style={styles.iaButton}>
               <Text style={styles.iaButtonText}>Conversacional</Text>
@@ -336,8 +313,7 @@ export default function Descobrir() {
           </View>
         }
       />
-
-      {/* 🆕 MODAL DE FILTROS */}
+      {/* MODAL DE FILTROS */}
       <Modal
         visible={modalFiltrosVisible}
         transparent
@@ -353,14 +329,10 @@ export default function Descobrir() {
             >
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
-
-            {/* Título */}
             <Text style={styles.modalTitle}>Filtros</Text>
-
-            {/* Filtro por Categoria */}
             <Text style={styles.filterSectionTitle}>Por Categoria</Text>
             <View style={styles.filterOptionsRow}>
-              {["Texto", "Imagem", "Código", "Documentação"].map((cat) => (
+              {["Texto", "Imagem", "Código", "Áudio"].map((cat) => (
                 <TouchableOpacity
                   key={cat}
                   style={[
@@ -382,8 +354,6 @@ export default function Descobrir() {
                 </TouchableOpacity>
               ))}
             </View>
-
-            {/* Filtro por Preço */}
             <Text style={styles.filterSectionTitle}>Por Preço</Text>
             <View style={styles.filterOptionsRow}>
               {["Gratuitas", "Premium", "Freemium"].map((preco) => (
@@ -407,8 +377,6 @@ export default function Descobrir() {
                 </TouchableOpacity>
               ))}
             </View>
-
-            {/* Botões de ação */}
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={styles.limparButton}
@@ -426,7 +394,6 @@ export default function Descobrir() {
           </View>
         </View>
       </Modal>
-
       {/* Popup de detalhes */}
       <IaPopup
         visible={iaPopupVisible}
@@ -562,6 +529,12 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: 18,
   },
+  iaCategorias: {
+    fontSize: 11,
+    color: "#999",
+    marginTop: 4,
+    fontWeight: "500",
+  },
   iaButton: {
     backgroundColor: "#40bff5",
     borderRadius: 16,
@@ -582,7 +555,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#999",
   },
-  // 🆕 ESTILOS DO MODAL DE FILTROS
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
