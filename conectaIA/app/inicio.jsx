@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   FlatList,
@@ -26,7 +27,7 @@ const MOCK_DESTAQUE = [
     title: "ChatGPT",
     category: "Texto",
     tags: ["Grátis", "Premium"],
-    
+    url: "https://chatgpt.com/",
   },
   {
     id: 2,
@@ -34,6 +35,7 @@ const MOCK_DESTAQUE = [
     title: "GitHub Copilot",
     category: "Código",
     tags: ["Grátis", "Paga"],
+    url: "https://github.com/copilot",
   },
 ];
 const MOCK_CATEGORIAS = [
@@ -43,30 +45,31 @@ const MOCK_CATEGORIAS = [
 ];
 const MOCK_RECENTES = [
   {
-    id: 101,
-    title: "ChatGPT",
-    logo: require("../assets/images/logoChatGPT.png"),
-    lastUsed: "2025-11-04",
-  },
-  {
-    id: 102,
-    title: "GitHub Copilot",
-    logo: require("../assets/images/logoGitHubCopilot.png"),
-    lastUsed: "2025-11-01",
+    logo: require("../assets/images/logoClaude3.png"),
+    title: "Claude 3",
+    subtitle: "Anthropic",
+    descricao:
+      "Claude é uma IA desenvolvida pela Anthropic. Focada em gerar, resumir e compreender textos com segurança e ética. Ideal para quem busca soluções conversacionais avançadas e confiáveis para tarefas profissionais e conteúdo digital.",
+    principaisUsos: ["Texto", "Pesquisa", "Programação"],
+    precos: "Gratuito com limitações / R$90 por mês para uso ilimitado.",
+    url: "https://claude.ai", 
   },
 ];
 
 // Todas as categorias para o modal "ver mais"
 const todasCategorias = [
   "Texto",
-  "Pesquisa",
   "Imagem",
   "Programação",
-  "Produtividade",
-  "Análise de Dados",
-  "Documentação",
-  "Pesquisa",
-  "Organização"
+  "Código"
+];
+
+const menuOptions = [
+  { label: "Início",    icon: "🏠", link: "/inicio" },
+  { label: "Descobrir", icon: "🔍", link: "/descobrir" },
+  { label: "Favoritos", icon: "🤍", link: "/favoritos" },
+  { label: "Tutoriais", icon: "📖", link: "/tutoriais" },
+  { label: "Perfil",    icon: "👤", link: "/perfil" },
 ];
 
 export default function Inicio() {
@@ -82,13 +85,8 @@ export default function Inicio() {
 
   // Menu inferior
   const [menuIndex, setMenuIndex] = useState(0);
-  const menuOptions = [
-    { label: "Início", icon: "🏠" },
-    { label: "Descobrir", icon: "🔍" },
-    { label: "Favoritos", icon: "🤍" },
-    { label: "Tutoriais", icon: "📖" },
-    { label: "Perfil", icon: "👤" },
-  ];
+
+  const router = useRouter();
 
   const user = { name: "João Fernando" };
 
@@ -128,7 +126,10 @@ export default function Inicio() {
           </View>
         </View>
         {/* Campo de busca */}
-        <TextInput placeholder="Que tipo de IA você está procurando hoje?" style={styles.searchInput} />
+        <TextInput
+          placeholder="Que tipo de IA você está procurando hoje?"
+          style={styles.searchInput}
+        />
         {/* IAs em Destaque */}
         <Text style={styles.sectionTitle}>IAs em Destaque</Text>
         {/* LISTA HORIZONTAL */}
@@ -159,6 +160,12 @@ export default function Inicio() {
                     item.title === "ChatGPT"
                       ? "Gratuito com limitações / R$106 por mês para uso ilimitado."
                       : "Gratuito com limitações para estudantes / R$56 por mês para uso ilimitado do ChatGPT.",
+                  url:
+                    item.title === "ChatGPT"
+                    ? "https://chatgpt.com/"
+                    : "https://github.com/copilot",
+
+
                 });
                 setIaPopupLoading(false);
                 setIaPopupVisible(true);
@@ -207,10 +214,28 @@ export default function Inicio() {
             </TouchableOpacity>
           </View>
         </View>
+
         {/* RECENTES */}
         <View style={styles.recentesContainer}>
           <Text style={styles.sectionTitle}>Adicionadas Recentemente</Text>
-          <View style={styles.recenteCard}>
+
+          <TouchableOpacity
+            style={styles.recenteCard}
+            activeOpacity={0.7}
+            onPress={() => {
+              setIaSelecionada({
+                logo: recentes[0].logo,
+                title: recentes[0].title,
+                subtitle: recentes[0].subtitle,
+                descricao: recentes[0].descricao,
+                principaisUsos: recentes[0].principaisUsos,
+                precos: recentes[0].precos,
+                url:recentes[0].url, 
+              });
+              setIaPopupLoading(false);
+              setIaPopupVisible(true);
+            }}
+          >
             <Image
               source={require("../assets/images/logoClaude3.png")}
               style={styles.recenteLogo}
@@ -230,7 +255,7 @@ export default function Inicio() {
                 </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -251,10 +276,13 @@ export default function Inicio() {
       >
         <View style={styles.overlay}>
           <View style={styles.modalBox}>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setModalCategoriaVisible(false)}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalCategoriaVisible(false)}
+            >
               <Text style={{ fontSize: 18 }}>✕</Text>
             </TouchableOpacity>
-            {todasCategorias.map(cat => (
+            {todasCategorias.map((cat) => (
               <TouchableOpacity
                 key={cat}
                 style={styles.modalButton}
@@ -273,7 +301,10 @@ export default function Inicio() {
           <TouchableOpacity
             key={item.label}
             style={styles.menuItem}
-            onPress={() => setMenuIndex(idx)}
+            onPress={() => {
+              setMenuIndex(idx)
+              router.push(item.link);
+            }}
             activeOpacity={0.7}
           >
             <Text
@@ -293,6 +324,8 @@ export default function Inicio() {
               {item.label}
             </Text>
           </TouchableOpacity>
+
+          
         ))}
       </View>
     </View>
@@ -331,7 +364,7 @@ const styles = {
     color: "#555",
   },
   avatarCircle: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#0F2C5C",
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -436,7 +469,7 @@ const styles = {
   iaTitleBlue: {
     fontSize: 17,
     fontWeight: "bold",
-    color: "#2460ef",
+    color: "#0F2C5C",
     marginBottom: 4,
     textAlign: "center",
   },
@@ -503,7 +536,7 @@ const styles = {
     marginTop: 2,
   },
   menuLabelActive: {
-    color: "#29B6F6",
+    color: "#0F2C5C",
     fontWeight: "bold",
   },
   recentesContainer: {
@@ -567,7 +600,7 @@ const styles = {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.12)",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   modalBox: {
     backgroundColor: "#fff",
@@ -575,7 +608,7 @@ const styles = {
     width: 250,
     padding: 18,
     alignItems: "stretch",
-    position: "relative"
+    position: "relative",
   },
   closeButton: {
     position: "absolute",
@@ -591,11 +624,11 @@ const styles = {
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e3e3e3"
+    borderColor: "#e3e3e3",
   },
   modalButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#222"
-  }
+    color: "#222",
+  },
 };
