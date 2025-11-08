@@ -59,7 +59,7 @@ const CATEGORIAS_CHIPS = [
 
 export default function Descobrir() {
   const params = useLocalSearchParams();
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [iasFiltradas, setIasFiltradas] = useState(MOCK_IAS_DESCOBRIR);
@@ -68,7 +68,7 @@ export default function Descobrir() {
   const [modalFiltrosVisible, setModalFiltrosVisible] = useState(false);
   const [filtrosCategorias, setFiltrosCategorias] = useState([]);
   const [filtrosPrecos, setFiltrosPrecos] = useState([]);
-  
+
   // Estados do popup de IA
   const [iaPopupVisible, setIaPopupVisible] = useState(false);
   const [iaSelecionada, setIaSelecionada] = useState(null);
@@ -94,6 +94,11 @@ export default function Descobrir() {
 
   // Aplicar filtros do modal
   const aplicarFiltros = () => {
+    if (filtrosCategorias.length === 1) {
+      setSelectedCategory(filtrosCategorias[0]); // Chip fica igual à única categoria escolhida
+    } else {
+      setSelectedCategory("Todos"); // Chip mostra "Todos" quando múltiplas categorias
+    }
     let filtered = MOCK_IAS_DESCOBRIR;
     if (filtrosCategorias.length > 0) {
       filtered = filtered.filter((ia) =>
@@ -113,6 +118,7 @@ export default function Descobrir() {
     setIasFiltradas(filtered);
     setModalFiltrosVisible(false);
   };
+
 
   // Limpar filtros do modal
   const limparFiltros = () => {
@@ -195,32 +201,32 @@ export default function Descobrir() {
         ia.title === "ChatGPT"
           ? "OpenAI"
           : ia.title === "Claude 3"
-          ? "Anthropic"
-          : "GitHub e OpenAI",
+            ? "Anthropic"
+            : "GitHub e OpenAI",
       descricao:
         ia.title === "ChatGPT"
           ? "O ChatGPT é uma IA conversacional avançada desenvolvida pela OpenAI que pode ajudar em uma ampla variedade de tarefas. Desde escrever código até criar conteúdo, analisar dados ou simplesmente entreter em uma conversa, o ChatGPT é uma ferramenta versátil para qualquer profissional ou estudante."
           : ia.title === "Claude 3"
-          ? "Claude é uma IA desenvolvida pela Anthropic. Focada em gerar, resumir e compreender textos com segurança e ética. Ideal para quem busca soluções conversacionais avançadas e confiáveis para tarefas profissionais e conteúdo digital."
-          : "O GitHub Copilot é um assistente de codificação feito para sugerir, explicar e gerar trechos completos de código para desenvolvedores.",
+            ? "Claude é uma IA desenvolvida pela Anthropic. Focada em gerar, resumir e compreender textos com segurança e ética. Ideal para quem busca soluções conversacionais avançadas e confiáveis para tarefas profissionais e conteúdo digital."
+            : "O GitHub Copilot é um assistente de codificação feito para sugerir, explicar e gerar trechos completos de código para desenvolvedores.",
       principaisUsos:
         ia.title === "ChatGPT"
           ? ["Texto", "Programação", "Pesquisa", "Análise de Dados"]
           : ia.title === "Claude 3"
-          ? ["Texto", "Pesquisa", "Programação"]
-          : ["Código", "Documentação", "Programação"],
+            ? ["Texto", "Pesquisa", "Programação"]
+            : ["Código", "Documentação", "Programação"],
       precos:
         ia.title === "ChatGPT"
           ? "Gratuito com limitações / R$106 por mês para uso ilimitado."
           : ia.title === "Claude 3"
-          ? "Gratuito com limitações / R$90 por mês para uso ilimitado."
-          : "Gratuito para estudantes / R$56 por mês para uso ilimitado.",
+            ? "Gratuito com limitações / R$90 por mês para uso ilimitado."
+            : "Gratuito para estudantes / R$56 por mês para uso ilimitado.",
       url:
         ia.title === "ChatGPT"
           ? "https://chatgpt.com/"
           : ia.title === "Claude 3"
-          ? "https://claude.ai"
-          : "https://github.com/copilot",
+            ? "https://claude.ai"
+            : "https://github.com/copilot",
     };
 
     setIaSelecionada(detalhes);
@@ -338,7 +344,7 @@ export default function Descobrir() {
                   style={[
                     styles.filterChip,
                     filtrosCategorias.includes(cat) &&
-                      styles.filterChipSelected,
+                    styles.filterChipSelected,
                   ]}
                   onPress={() => toggleFiltroCategoria(cat)}
                 >
@@ -346,7 +352,7 @@ export default function Descobrir() {
                     style={[
                       styles.filterChipText,
                       filtrosCategorias.includes(cat) &&
-                        styles.filterChipTextSelected,
+                      styles.filterChipTextSelected,
                     ]}
                   >
                     {cat}
@@ -369,7 +375,7 @@ export default function Descobrir() {
                     style={[
                       styles.filterChipText,
                       filtrosPrecos.includes(preco) &&
-                        styles.filterChipTextSelected,
+                      styles.filterChipTextSelected,
                     ]}
                   >
                     {preco}

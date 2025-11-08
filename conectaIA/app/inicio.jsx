@@ -61,8 +61,8 @@ const todasCategorias = ["Texto", "Imagem", "Documentação", "Código"];
 const menuOptions = [
   { label: "Início", icon: "🏠", link: "/inicio" },
   { label: "Descobrir", icon: "🔍", link: "/descobrir" },
-  { label: "Favoritos", icon: "🤍", link: "/favoritos" },
-  { label: "Tutoriais", icon: "📖", link: "/tutoriais" },
+  { label: "Favoritos", icon: "🤍", link: "/favorito" },
+  { label: "Tutoriais", icon: "📖", link: "/tutorial" },
   { label: "Perfil", icon: "👤", link: "/perfil" },
 ];
 
