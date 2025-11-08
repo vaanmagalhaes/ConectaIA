@@ -77,20 +77,21 @@ export default function Descobrir() {
   // Função para alternar seleção de categoria
   function toggleFiltroCategoria(categoria) {
     if (filtrosCategorias.includes(categoria)) {
-      setFiltrosCategorias(filtrosCategorias.filter((c) => c !== categoria));
+      setFiltrosCategorias([]);
     } else {
-      setFiltrosCategorias([...filtrosCategorias, categoria]);
+      setFiltrosCategorias([categoria]);
     }
   }
 
   // Função para alternar seleção de preço
   function toggleFiltroPreco(preco) {
     if (filtrosPrecos.includes(preco)) {
-      setFiltrosPrecos(filtrosPrecos.filter((p) => p !== preco));
+      setFiltrosPrecos([]);
     } else {
-      setFiltrosPrecos([...filtrosPrecos, preco]);
+      setFiltrosPrecos([preco]);
     }
   }
+
 
   // Aplicar filtros do modal
   const aplicarFiltros = () => {
